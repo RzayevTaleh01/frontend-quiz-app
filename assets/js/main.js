@@ -1,7 +1,7 @@
 // Variables
 
 let quizAnswers = document.querySelectorAll('.quiz-block_li');
-let quizAnswerBlock = document.querySelector('.quiz-block_categories')
+let quizAnswerBlock = document.querySelector('.quiz-block_categories');
 
 
 let data = [
@@ -101,9 +101,10 @@ function handleAnswerClick(event) {
     let answerId = event.target.getAttribute('data-id');
 
     let resultAnswer = handleCheckAnswer(answerId);
+    console.log(resultAnswer);
 
     if(resultAnswer){
-        event.target.classList.add('right')
+        event.target.classList.add('right');
     }else{
         event.target.classList.add('wrong')
     }
@@ -116,7 +117,7 @@ function handleAnswerClick(event) {
 
 function handleCheckAnswer(ansID) {
     let question = findQustion();
-    return question.id == ansID;
+    return question.trueAnswerId == ansID;
 }
 
 
@@ -126,7 +127,7 @@ function findQustion() {
         return item.id == params.categoryID
     })
     let questionData = catData.questions.find(item => {
-        return item.id = params.questionID
+        return item.id == params.questionID
     })
 
     return questionData;

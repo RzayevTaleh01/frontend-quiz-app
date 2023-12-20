@@ -9,7 +9,7 @@ let data = [
         id: "1",
         name: "HTML",
         logo: "assets/images/Group 83.svg",
-        page: [
+        questions: [
             {
                 id: "1",
                 question:
@@ -44,7 +44,7 @@ let data = [
         id: "2",
         name: "CSS",
         logo: "assets/images/Group 82.svg",
-        page: [
+        questions: [
             {
                 id: "1",
                 question:
@@ -77,26 +77,69 @@ let data = [
     }
 ];
 
+let params = getCurrentUrl();
 
-function handleAnswerClick(event) {
-    quizAnswers?.forEach(item => item.classList.remove('selected'));
 
-    event.target.classList.add('selected')
+function getCurrentUrl() {
+    let urlParams = new URLSearchParams(window.location.search);
+    let questionID = urlParams.get('questionID');
+    let categoryID = urlParams.get('categoryID');
+
+    let pageName = window.location.pathname.split('/').pop();
+
+    return {
+        questionID: questionID,
+        categoryID: categoryID,
+        pageName: pageName
+    }
 }
 
-quizAnswers?.forEach(item => {
-    item.addEventListener('click', handleAnswerClick)
-})
+
+function handleAnswerClick(event) {
+    console.log(event.target.getAttribute('data-id'));
+
+    let answerId = event.target.getAttribute('data-id');
+
+    let resultAnswer = handleCheckAnswer(answerId);
+
+    if(resultAnswer){
+        event.target.classList.add('right')
+    }else{
+        event.target.classList.add('wrong')
+    }
+
+
+    quizAnswers?.forEach(item => item.classList.remove('selected'));
+    event.target.classList.add('selected')
+
+}
+
+function handleCheckAnswer(ansID) {
+    let question = findQustion();
+    return question.id == ansID;
+}
 
 
 
+function findQustion() {
+    let catData = data.find(item => {
+        return item.id == params.categoryID
+    })
+    let questionData = catData.questions.find(item => {
+        return item.id = params.questionID
+    })
 
-function getData(a) {
+    return questionData;
+}
+
+
+
+function getAnswerData(a) {
     let dataHtml = '';
 
     a.map((item) => {
         dataHtml += `
-        <li class="quiz-block_li">
+        <li data-id="${item.id}" class="quiz-block_li">
                             <div class="quiz-block_li--variant">
                                 <p>${item.variant}</p>
                             </div>
@@ -109,7 +152,12 @@ function getData(a) {
 
     quizAnswerBlock.innerHTML = dataHtml;
 
+    quizAnswers = document.querySelectorAll('.quiz-block_li');
+    quizAnswers?.forEach(item => {
+        item.addEventListener('click', handleAnswerClick)
+    })
+
 }
 
 
-getData(data[0].page[0].answers)
+getAnswerData(data[0].questions[0].answers)

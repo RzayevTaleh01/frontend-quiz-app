@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Quiz App</title>
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+    <!-- Absolute Images -->
+    <div class="absolute-img absolute-img_left">
+        <img src="./assets/img/circle-left.svg" alt="">
+    </div>
+    <div class="absolute-img absolute-img_right">
+        <img src="./assets/img/circle-right.svg" alt="">
+    </div>
+
+    <!-- Navbar -->
+
+    <nav>
+        <div class="container-xl">
+            <div class="nav-block">
+                <div class="nav-block_switch">
+                    <label for="theme-check">
+                        <i class='bx bx-sun'></i>
+                    </label>
+                    <input id="theme-check" class="nav-block_check" type="checkbox">
+                    <label for="theme-check">
+                        <i class='bx bx-moon'></i>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+
+    <main class="quiz">
+        <div class="container-xl">
+            <div class="quiz-block">
+                <div class="quiz-block_head">
+                    <h1 class="quiz-block_head--header">
+                        <span>
+                            Welcome to the
+                        </span><br>
+                        Frontend Quiz!
+                    </h1>
+                    <p class="quiz-block_head--desc">Pick a subject to get started.</p>
+                </div>
+                <ul class="quiz-block_categories">
+                        <li class="quiz-block_li">
+                            <div>
+                                <img src="./assets/img/html.svg" alt="">
+                            </div>
+                            <p class="quiz-block_li--title">
+                                HTML
+                            </p>
+                        </li>
+                        <li class="quiz-block_li">
+                            <div>
+                                <img src="./assets/img/css.svg" alt="">
+                            </div>
+                            <p class="quiz-block_li--title">
+                                Css
+                            </p>
+                        </li>
+                        <li class="quiz-block_li">
+                            <div>
+                                <img src="./assets/img/js.svg" alt="">
+                            </div>
+                            <p class="quiz-block_li--title">
+                                Javascript
+                            </p>
+                        </li>
+                        <li class="quiz-block_li">
+                            <div>
+                                <img src="./assets/img/accessibility.svg" alt="">
+                            </div>
+                            <p class="quiz-block_li--title">
+                                Accessibility
+                            </p>
+                        </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- script -->
+
+    <script src="./assets/js/main.js"></script>
+</body>
+
+
+</html>

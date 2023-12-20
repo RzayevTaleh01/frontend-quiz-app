@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Quiz App</title>
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+    <!-- Absolute Images -->
+    <div class="absolute-img absolute-img_left">
+        <img src="./assets/img/circle-left.svg" alt="">
+    </div>
+    <div class="absolute-img absolute-img_right">
+        <img src="./assets/img/circle-right.svg" alt="">
+    </div>
+
+    <!-- Navbar -->
+
+    <nav>
+        <div class="container-xl">
+            <div class="nav-block nav-block--between">
+                <div class="nav-block_category">
+                    <img src="./assets/img/accessibility.svg" alt="">
+                    <p>
+                        Accessibility
+                    </p>
+                </div>
+                <div class="nav-block_switch">
+                    <label for="theme-check">
+                        <i class='bx bx-sun'></i>
+                    </label>
+                    <input id="theme-check" class="nav-block_check" type="checkbox">
+                    <label for="theme-check">
+                        <i class='bx bx-moon'></i>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+
+    <main class="quiz">
+        <div class="container-xl">
+            <div class="quiz-block">
+                <div class="quiz-block_desc">
+                    <div class="quiz-block_head">
+                        <p class="quiz-block_head--desc">Question 6 of 10</p>
+                        <h3 class="quiz-block_head--question">
+                            Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for
+                            normal text?
+                        </h3>
+                    </div>
+                    <div class="quiz-block_progress">
+                        <p style="width: 72%"></p>
+                    </div>
+                </div>
+                <div class="quiz-block_op">
+                    <ul class="quiz-block_categories">
+                        <li class="quiz-block_li right">
+                            <div class="quiz-block_li--variant">
+                                <p>A</p>
+                            </div>
+                            <p class="quiz-block_li--title">
+                                4.5 : 1
+                            </p>
+                        </li>
+                        <li class="quiz-block_li wrong" >
+                            <div class="quiz-block_li--variant">
+                                <p>B</p>
+                            </div>
+                            <p class="quiz-block_li--title">
+                                3 : 1
+                            </p>
+                        </li>
+                        <li class="quiz-block_li selected">
+                            <div class="quiz-block_li--variant">
+                                <p>C</p>
+                            </div>
+                            <p class="quiz-block_li--title">
+                                2.5 : 1
+                            </p>
+                        </li>
+                        <li class="quiz-block_li">
+                            <div class="quiz-block_li--variant">
+                                <p>D</p>
+                            </div>
+                            <p class="quiz-block_li--title">
+                                5 : 1
+                            </p>
+                        </li>
+                    </ul>
+
+
+                    <div class="quiz-submit_btn">
+                        <button class="button button-full button-primary">
+                            Submit Answer
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+
+    <!-- script -->
+
+    <script src="./assets/js/main.js"></script>
+</body>
+
+
+</html>

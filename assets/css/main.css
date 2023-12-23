@@ -241,7 +241,7 @@ nav {
 
 /* Quiz li selected */
 .quiz-block_li.selected{
-    border: 3px solid var(--Purple, #A729F5);
+    border: 3px solid #A729F5;
     padding: 13.6px 20px;
 }
 
@@ -254,6 +254,7 @@ nav {
 }
 
 /* Quiz li right answer */
+
 .quiz-block_li.right{
     border: 3px solid var(--Purple, #26D782);
     padding: 13.6px 20px;
@@ -282,7 +283,7 @@ nav {
 /* Quiz li wrong answer */
 
 .quiz-block_li.wrong{
-    border: 3px solid var(--Purple, #EE5454);
+    border: 3px solid  #EE5454;
     padding: 13.6px 20px;
     position: relative;
 }

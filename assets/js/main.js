@@ -1,10 +1,7 @@
-//  - Mock Data
-//  - CurrentUrl
-//  - Answer 
-//  - Check Answer
+//  - Full Url Architecture
 
 let quizAnswers;
-let answersBlock = document.querySelector('.quiz-block_categories');
+let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
 
 
 
@@ -16,7 +13,7 @@ let data = [
         name: 'HTML',
         questions: [
             {
-                id: '1',
+                id: '127',
                 text: 'Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for normal text?',
                 rightAnswerID: '3',
                 answers: [
@@ -45,7 +42,7 @@ let data = [
 
             },
             {
-                id: '2',
+                id: '213',
                 text: 'Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for normal text?',
                 rightAnswerID: '3',
                 answers: [
@@ -95,6 +92,57 @@ let data = [
 
 ]
 
+let params = getCurrentUrl();
+
+
+function getCurrentUrl() {
+    let urlParams = new URLSearchParams(window.location.search);
+    let categoryID = urlParams.get('categoryID');
+    let questionID = urlParams.get('questionID');
+
+    let pageName = window.location.pathname.split('/').pop();
+
+    return {
+        categoryID: categoryID,
+        questionID: questionID,
+        pageName: pageName
+    }
+}
+
+function getFirstQuestionIDByCategory(catID) {
+    let category = data.find(item => item.id === catID);
+
+    if (category && category.questions && category.questions.length > 0) {
+        return category.questions[0].id
+    } else {
+        return null
+    }
+
+}
+
+function callAnswerOrCategory(type) {
+
+    quizAnswers = document.querySelectorAll('.quiz-block_li');
+    quizAnswers.forEach(item => {
+        if (type == 'category') {
+            item.addEventListener('click', handleCategoryClick)
+        }
+        else {
+            item.addEventListener('click', handleAnswerClick)
+        }
+    })
+}
+
+
+function handleCategoryClick(event) {
+    let catID = event.target.getAttribute("data-category-id")
+    let firstQuestionID = getFirstQuestionIDByCategory(catID)
+
+    console.log(catID + " "+ firstQuestionID);
+
+
+}
+
 function handleAnswerClick(event) {
     quizAnswers.forEach((item) => {
         item.classList.remove('selected')
@@ -105,7 +153,8 @@ function handleAnswerClick(event) {
 
 
 
-function getData(a) {
+
+function generateAnswerData(a) {
     let dataHtml = '';
 
     a.map((item) => {
@@ -121,17 +170,48 @@ function getData(a) {
         `
     })
 
-    answersBlock.innerHTML = dataHtml;
-    
-    quizAnswers = document.querySelectorAll('.quiz-block_li');
-    quizAnswers.forEach(item => {
-        item.addEventListener('click', handleAnswerClick)
+    answerOrCategoryBlock.innerHTML = dataHtml;
+
+    callAnswerOrCategory();
+
+}
+
+
+function generateCategoryData(a) {
+    let dataHtml = '';
+
+    a.map((item) => {
+        dataHtml += `
+        <li data-category-id="${item.id}" class="quiz-block_li">
+        <div>
+            <img src="${item.img}" alt="">
+        </div>
+        <p class="quiz-block_li--title">
+           ${item.name}
+        </p>
+    </li>
+        `
     })
+
+    answerOrCategoryBlock.innerHTML = dataHtml;
+    callAnswerOrCategory('category');
 
 }
 
 
 
+if (params.questionID && params.categoryID) {
+    generateAnswerData(data[0].questions[0].answers)
+} else {
+    generateCategoryData(data)
+}
 
-getData(data[0].questions[0].answers)
 
+let url = new URL(window.location.href);
+console.log(url);
+url.searchParams.set('questionID',1)
+url.searchParams.set('categoryID',23)
+
+
+
+window.history.replaceState({}, '', url)

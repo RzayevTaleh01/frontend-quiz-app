@@ -1,7 +1,5 @@
-//  - Mock Data
-//  - CurrentUrl
-//  - Answer 
-//  - Check Answer
+//  - Full URL Architecture
+
 
 let quizAnswers;
 let answersBlock = document.querySelector('.quiz-block_categories');
@@ -132,6 +130,4 @@ function getData(a) {
 
 
 
-
-getData(data[0].questions[0].answers)
 

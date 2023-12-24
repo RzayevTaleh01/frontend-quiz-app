@@ -134,14 +134,18 @@ function getQuestionByIDs(categoryID, questionID) {
     }
 }
 
-function updateUrlWithParams(newParams) {
+function updateUrlWithParams(type, newParams) {
     let url = new URL(window.location.href);
 
-    Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value));
+    if (type === 'delete') {
+        url.search = '';
+    } else if (type === 'update') {
+        Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value));
+            generateQuestionPage(newParams.categoryID, newParams.questionID);
 
+    }
     window.history.replaceState({}, '', url);
 
-    generateQuestionPage(newParams.categoryID, newParams.questionID)
 }
 
 
@@ -178,7 +182,7 @@ function handleCategoryClick(event) {
         questionID: firstQuestionID,
     }
 
-    updateUrlWithParams(newParams)
+    updateUrlWithParams('update',newParams)
 }
 
 
@@ -226,8 +230,11 @@ function generateCategoryData(a) {
 }
 
 function generateQuestionPage(catID, questionID) {
+    console.log('dsf');
     let question = getQuestionByIDs(catID, questionID);
-
+    console.log(question);
+    if(question){
+    
     generateAnswerData(question.answers)
 
     const quizBlockOp = document.querySelector('.quiz-block_op');
@@ -255,6 +262,11 @@ function generateQuestionPage(catID, questionID) {
     callAnswerOrCategory();
     checkAnswer()
 
+    }
+    else{
+        updateUrlWithParams('delete')
+        generateCategoryData(data)
+    }
 }
 
 

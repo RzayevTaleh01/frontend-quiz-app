@@ -4,8 +4,6 @@ let quizAnswers;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
 
 
-
-
 let data = [
     {
         id: '1',
@@ -20,12 +18,12 @@ let data = [
                     {
                         id: '1',
                         variant: 'A',
-                        text: '4.5 : 1'
+                        text: '12.5 : 1'
                     },
                     {
                         id: '2',
                         variant: 'B',
-                        text: '1.5 : 1'
+                        text: '3.5 : 1'
                     },
                     {
                         id: '3',
@@ -75,7 +73,7 @@ let data = [
     {
         id: '2',
         img: './assets/img/css.svg',
-        name: 'Css'
+        name: 'Css',
     }
     ,
     {
@@ -94,6 +92,20 @@ let data = [
 
 let params = getCurrentUrl();
 
+
+// Actions Function
+
+function updateUrlWithParams(newParams) {
+    let url = new URL(window.location.href);
+
+    Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value))
+
+    window.history.replaceState({}, '', url)
+
+    generateQuestionPage(newParams.categoryID, newParams.questionID)
+}
+
+// Get functions
 
 function getCurrentUrl() {
     let urlParams = new URLSearchParams(window.location.search);
@@ -117,12 +129,12 @@ function getFirstQuestionIDByCategory(catID) {
     } else {
         return null
     }
-
 }
 
 function callAnswerOrCategory(type) {
 
     quizAnswers = document.querySelectorAll('.quiz-block_li');
+
     quizAnswers.forEach(item => {
         if (type == 'category') {
             item.addEventListener('click', handleCategoryClick)
@@ -131,14 +143,36 @@ function callAnswerOrCategory(type) {
             item.addEventListener('click', handleAnswerClick)
         }
     })
+
+
 }
 
+
+function getQuestionByIDs(catID, questionID) {
+    let category = data.find(item => item.id == catID);
+
+    if (category && category.questions && category.questions.length > 0) {
+        let question = category.questions.find(q => q.id == questionID)
+        return question;
+    }
+    else {
+        return null;
+    }
+}
+
+
+// Click Functions
 
 function handleCategoryClick(event) {
     let catID = event.target.getAttribute("data-category-id")
     let firstQuestionID = getFirstQuestionIDByCategory(catID)
 
-    console.log(catID + " "+ firstQuestionID);
+    let newParams = {
+        categoryID: catID,
+        questionID: firstQuestionID,
+    }
+
+    updateUrlWithParams(newParams)
 
 
 }
@@ -152,6 +186,7 @@ function handleAnswerClick(event) {
 }
 
 
+// Generate Functions
 
 
 function generateAnswerData(a) {
@@ -199,19 +234,41 @@ function generateCategoryData(a) {
 }
 
 
+function generateQuestionPage(catID, questionID) {
+    let question = getQuestionByIDs(catID, questionID);
+    generateAnswerData(question.answers)
 
-if (params.questionID && params.categoryID) {
-    generateAnswerData(data[0].questions[0].answers)
-} else {
-    generateCategoryData(data)
+    let questionBlock = document.querySelector('.quiz-block_desc');
+
+    questionBlock.innerHTML = `
+    <div class="quiz-block_head">
+    <p class="quiz-block_head--desc">Question 6 of 10</p>
+    <h3 class="quiz-block_head--question">
+        ${question.text}
+    </h3>
+</div>
+<div class="quiz-block_progress">
+    <p style="width: 20%"></p>
+</div>
+    `
+
+    let quizBlockOp = document.querySelector('.quiz-block_op');
+
+    quizBlockOp.innerHTML += `
+    <div class="quiz-submit_btn">
+                    <button class="button button-full button-primary">
+                        Submit Answer
+                    </button>
+                </div>
+    `
+
+    callAnswerOrCategory()
 }
 
 
-let url = new URL(window.location.href);
-console.log(url);
-url.searchParams.set('questionID',1)
-url.searchParams.set('categoryID',23)
 
-
-
-window.history.replaceState({}, '', url)
+if (params.questionID && params.categoryID) {
+    generateQuestionPage(params.categoryID, params.questionID)
+} else {
+    generateCategoryData(data)
+}

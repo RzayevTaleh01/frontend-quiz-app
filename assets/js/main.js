@@ -3,11 +3,12 @@
 
 -- QuestionID ?? - redirect
 -- Check Answer
-
+-- next Question
 
 */
 
 let quizAnswers;
+let selectedAnswerID = null;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
 
 
@@ -51,12 +52,41 @@ let data = [
             {
                 id: '2',
                 text: 'demo?',
-                rightAnswerID: '3',
+                rightAnswerID: '1',
                 answers: [
                     {
                         id: '1',
                         variant: 'A',
                         text: '11 : 1',
+                    },
+                    {
+                        id: '2',
+                        variant: 'B',
+                        text: '25 : 1'
+                    },
+                    {
+                        id: '3',
+                        variant: 'C',
+                        text: '2.5 : 2'
+                    },
+                    {
+                        id: '4',
+                        variant: 'D',
+                        text: '3.5 : 1'
+                    }
+
+                ]
+
+            },
+            {
+                id: '23',
+                text: 'demo 23',
+                rightAnswerID: '1',
+                answers: [
+                    {
+                        id: '1',
+                        variant: 'A',
+                        text: '13432 : 1',
                     },
                     {
                         id: '2',
@@ -128,16 +158,33 @@ function getFirstQuestionIDByCategory(categoryID) {
     }
 }
 
+
 function getQuestionByIDs(categoryID, questionID) {
 
-    const category = data.find(item => item.id === categoryID);
+    const category = data.find(item => item.id == categoryID);
 
     if (category && category.questions && category.questions.length > 0) {
-        const question = category.questions.find(q => q.id === questionID);
+        const question = category.questions.find(q => q.id == questionID);
         return question || null;
     } else {
         return null;
     }
+}
+
+function getNextQuestion(categoryID, currentQuestionID) {
+    const category = data.find(item => item.id === categoryID);
+
+    if (!category || !category.questions) {
+        return null
+    }
+
+    const currentIndex = category.questions.findIndex(q => q.id == currentQuestionID);
+
+    if (currentIndex == -1 || currentIndex == category.questions.length - 1) {
+        return null
+    }
+
+    return category.questions[currentIndex + 1]
 }
 
 function updateUrlWithParams(type, newParams) {
@@ -147,7 +194,7 @@ function updateUrlWithParams(type, newParams) {
         url.search = '';
     } else if (type === 'update') {
         Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value));
-            generateQuestionPage(newParams.categoryID, newParams.questionID);
+        generateQuestionPage(newParams.categoryID, newParams.questionID);
 
     }
     window.history.replaceState({}, '', url);
@@ -170,11 +217,15 @@ function callAnswerOrCategory(type) {
 // Click Functions
 
 function handleAnswerClick(event) {
+    selectedAnswerID = null;
+    let ansID = event.target.getAttribute('data-id');
+
     quizAnswers.forEach((item) => {
         item.classList.remove('selected')
     })
 
     event.target.classList.add('selected');
+    selectedAnswerID = ansID
 }
 
 
@@ -188,7 +239,47 @@ function handleCategoryClick(event) {
         questionID: firstQuestionID,
     }
 
-    updateUrlWithParams('update',newParams)
+    updateUrlWithParams('update', newParams)
+}
+
+
+// check functions
+
+function checkAnswer(catID, questionData) {
+    let submitBtn = document.querySelector('#checkAnswer');
+
+
+    submitBtn.addEventListener('click', (e) => {
+
+        let selectedElement = document.querySelector(`.quiz-block_li[data-id="${selectedAnswerID}"]`)
+        let rightElement = document.querySelector(`.quiz-block_li[data-id="${questionData.rightAnswerID}"]`)
+        let rightClassElement = document.querySelector(`.quiz-block_li.right`)
+        let nextQuestion = getNextQuestion(catID, questionData.id)
+
+
+
+        if (!rightClassElement) {
+            if (selectedAnswerID) {
+                if (selectedAnswerID == questionData.rightAnswerID) {
+                    selectedElement.classList.add('right');
+                } else {
+                    selectedElement.classList.add('wrong');
+                    rightElement.classList.add('right');
+                }
+                selectedAnswerID = null;
+                submitBtn.innerText = nextQuestion ? 'Next Question' : 'Submit Answer';
+            } else {
+                alert('isnot selectedanswerid');
+            }
+        } else {
+
+            let newParams = { categoryID: catID, questionID: nextQuestion?.id };
+            updateUrlWithParams('update', newParams);
+        }
+
+
+
+    })
 }
 
 
@@ -235,26 +326,24 @@ function generateCategoryData(a) {
 
 }
 
+
+// Generate Page Functions
+
 function generateQuestionPage(catID, questionID) {
-    console.log('dsf');
     let question = getQuestionByIDs(catID, questionID);
     console.log(question);
-    if(question){
-    
-    generateAnswerData(question.answers)
+    if (question) {
 
-    const quizBlockOp = document.querySelector('.quiz-block_op');
-    quizBlockOp.innerHTML += `
-    <div class="quiz-submit_btn">
+        generateAnswerData(question.answers)
+
+        const quizSubmitBtn = document.querySelector('.quiz-submit_btn');
+        quizSubmitBtn.innerHTML = `
     <button id='checkAnswer' class="button button-full button-primary">
         Submit Answer
     </button>
-</div>
     `
-
-    const questionBlock = document.querySelector('.quiz-block_desc');
-
-    questionBlock.innerHTML = `
+        const questionBlock = document.querySelector('.quiz-block_desc');
+        questionBlock.innerHTML = `
     <div class="quiz-block_head">
                         <p class="quiz-block_head--desc">Question 1 of 10</p>
                         <h3 class="quiz-block_head--question">
@@ -265,28 +354,40 @@ function generateQuestionPage(catID, questionID) {
                         <p style="width: 5%"></p>
                     </div>`
 
-    callAnswerOrCategory();
-    checkAnswer()
+        callAnswerOrCategory();
+        checkAnswer(catID, question)
 
     }
-    else{
+    else {
         updateUrlWithParams('delete')
-        generateCategoryData(data)
+        generateHomePage()
     }
 }
 
 
+function generateHomePage() {
 
-function checkAnswer() {
-    let submitBtn = document.querySelector('#checkAnswer');
+    generateCategoryData(data)
 
-    submitBtn.addEventListener('click', (e) => {
-    })
+    const questionBlock = document.querySelector('.quiz-block_desc');
+    questionBlock.innerHTML = `
+        <div class="quiz-block_head">
+        <h1 class="quiz-block_head--header">
+            <span>
+                Welcome to the
+            </span><br>
+            Frontend Quiz!
+        </h1>
+        <p class="quiz-block_head--desc">Pick a subject to get started.</p>
+    </div>`
 }
+
+
+
 
 
 if (!params.categoryID && !params.questionID) {
-    generateCategoryData(data)
+    generateHomePage()
 }
 
 

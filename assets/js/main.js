@@ -1,4 +1,11 @@
-//  - Full Url Architecture
+/*
+
+-- QuestionID ?? - redirect
+-- Check Answer
+-- next Question
+
+*/
+
 
 let quizAnswers;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
@@ -272,3 +279,10 @@ if (params.questionID && params.categoryID) {
 } else {
     generateCategoryData(data)
 }
+
+
+let url = new URL(window.location.href);
+
+url.search = ''
+
+window.history.replaceState({}, '', url)

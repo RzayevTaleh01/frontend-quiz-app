@@ -281,8 +281,3 @@ if (params.questionID && params.categoryID) {
 }
 
 
-let url = new URL(window.location.href);
-
-url.search = ''
-
-window.history.replaceState({}, '', url)

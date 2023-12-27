@@ -1,5 +1,11 @@
-//  - Full URL Architecture
 
+/*
+
+-- QuestionID ?? - redirect
+-- Check Answer
+
+
+*/
 
 let quizAnswers;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
@@ -275,7 +281,6 @@ function checkAnswer() {
     let submitBtn = document.querySelector('#checkAnswer');
 
     submitBtn.addEventListener('click', (e) => {
-
     })
 }
 

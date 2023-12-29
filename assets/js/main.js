@@ -48,13 +48,13 @@ let data = [
             },
             {
                 id: '213',
-                text: 'Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for normal text?',
+                text: 'WhicLevel AA requirement for normal text?',
                 rightAnswerID: '3',
                 answers: [
                     {
                         id: '1',
                         variant: 'A',
-                        text: '4.5 : 1',
+                        text: '41234 : 1',
                     },
                     {
                         id: '2',
@@ -102,14 +102,20 @@ let params = getCurrentUrl();
 
 // Actions Function
 
-function updateUrlWithParams(newParams) {
+function updateUrlWithParams(type, newParams) {
     let url = new URL(window.location.href);
 
-    Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value))
+    if (type === 'delete') {
+        url.search = ''
+    }
+    else if (type === 'update') {
+        Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value))
+        generateQuestionPage(newParams.categoryID, newParams.questionID)
+    }
+
+
 
     window.history.replaceState({}, '', url)
-
-    generateQuestionPage(newParams.categoryID, newParams.questionID)
 }
 
 // Get functions
@@ -136,6 +142,24 @@ function getFirstQuestionIDByCategory(catID) {
     } else {
         return null
     }
+}
+
+function getNextQuestion(catID, currentQuestionID) {
+
+    let category = data.find(item => item.id === catID);
+
+    if (!category || !category.questions) {
+        return null;
+    }
+
+    let currentQuestionIndex = category.questions.findIndex(item => item.id === currentQuestionID);
+
+    if (currentQuestionIndex == -1 || currentQuestionIndex == category.questions.length - 1) {
+        return null;
+    }
+
+    return category.questions[currentQuestionIndex + 1]
+
 }
 
 function callAnswerOrCategory(type) {
@@ -179,7 +203,7 @@ function handleCategoryClick(event) {
         questionID: firstQuestionID,
     }
 
-    updateUrlWithParams(newParams)
+    updateUrlWithParams('update', newParams)
 
 
 }
@@ -190,6 +214,48 @@ function handleAnswerClick(event) {
     })
 
     event.target.classList.add('selected');
+}
+
+function checkAnswer(questionData, catID) {
+    let submitBtn = document.querySelector('#answerSubmitBtn');
+
+    submitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        let selectedElement = document.querySelector('.quiz-block_li.selected');
+        let selectedID = selectedElement?.getAttribute('data-id');
+        let rightElement = document.querySelector(`.quiz-block_li[data-id="${questionData.rightAnswerID}"]`)
+        let rightClassElement = document.querySelector('.quiz-block_li.right')
+        let nextQuestion = getNextQuestion(catID, questionData.id)
+
+
+
+        if (!rightClassElement) {
+
+            console.log(nextQuestion);
+
+            if (selectedID) {
+
+                if (selectedID == questionData.rightAnswerID) {
+                    selectedElement.classList.add('right')
+                } else {
+                    selectedElement.classList.add('wrong')
+                    rightElement.classList.add('right')
+                }
+                e.target.innerText = nextQuestion? 'Next Question': 'Submit Answer';
+            }
+            else {
+
+                console.log('no selected');
+            }
+
+        }
+
+        else {
+            updateUrlWithParams("update",{categoryID: catID,questionID: nextQuestion?.id})
+        }
+
+    })
 }
 
 
@@ -243,11 +309,14 @@ function generateCategoryData(a) {
 
 function generateQuestionPage(catID, questionID) {
     let question = getQuestionByIDs(catID, questionID);
-    generateAnswerData(question.answers)
 
-    let questionBlock = document.querySelector('.quiz-block_desc');
+    if (question) {
 
-    questionBlock.innerHTML = `
+        generateAnswerData(question.answers)
+
+        let questionBlock = document.querySelector('.quiz-block_desc');
+
+        questionBlock.innerHTML = `
     <div class="quiz-block_head">
     <p class="quiz-block_head--desc">Question 6 of 10</p>
     <h3 class="quiz-block_head--question">
@@ -259,25 +328,28 @@ function generateQuestionPage(catID, questionID) {
 </div>
     `
 
-    let quizBlockOp = document.querySelector('.quiz-block_op');
+        let quizBlockBtn = document.querySelector('.quiz-submit_btn');
 
-    quizBlockOp.innerHTML += `
-    <div class="quiz-submit_btn">
-                    <button class="button button-full button-primary">
+        quizBlockBtn.innerHTML = `
+                    <button id='answerSubmitBtn' class="button button-full button-primary">
                         Submit Answer
-                    </button>
-                </div>
-    `
+                    </button>  `
 
-    callAnswerOrCategory()
+        callAnswerOrCategory();
+        checkAnswer(question, catID);
+    }
+    else {
+        updateUrlWithParams('delete')
+    }
 }
 
 
 
 if (params.questionID && params.categoryID) {
     generateQuestionPage(params.categoryID, params.questionID)
-} else {
-    generateCategoryData(data)
 }
 
 
+if (!params.questionID && !params.categoryID) {
+    generateCategoryData(data)
+}

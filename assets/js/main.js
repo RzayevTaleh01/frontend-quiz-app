@@ -9,6 +9,8 @@
 
 let quizAnswers;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
+let quizResult = 0;
+let progressBar = 0;
 
 
 let data = [
@@ -19,6 +21,35 @@ let data = [
         questions: [
             {
                 id: '127',
+                text: 'Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for normal text?',
+                rightAnswerID: '3',
+                answers: [
+                    {
+                        id: '1',
+                        variant: 'A',
+                        text: '12.5 : 1'
+                    },
+                    {
+                        id: '2',
+                        variant: 'B',
+                        text: '3.5 : 1'
+                    },
+                    {
+                        id: '3',
+                        variant: 'C',
+                        text: '2.5 : 2'
+                    },
+                    {
+                        id: '4',
+                        variant: 'D',
+                        text: '3.5 : 1'
+                    }
+
+                ]
+
+            },
+               {
+                id: '2327',
                 text: 'Which of these color contrast ratios defines the minimum WCAG 2.1 Level AA requirement for normal text?',
                 rightAnswerID: '3',
                 answers: [
@@ -97,20 +128,18 @@ let data = [
 
 ]
 
-let params = getCurrentUrl();
-
-
-// Actions Function
-
 function updateUrlWithParams(type, newParams) {
     let url = new URL(window.location.href);
 
     if (type === 'delete') {
+        quizResult=0;
         url.search = ''
+        generateHomePage();
     }
-    else if (type === 'update') {
+    if (type === 'update') {
         Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value))
-        generateQuestionPage(newParams.categoryID, newParams.questionID)
+        
+        newParams.result=='true' ? generateResultPage(newParams.categoryID) : generateQuestionPage(newParams.categoryID, newParams.questionID)
     }
 
 
@@ -124,15 +153,21 @@ function getCurrentUrl() {
     let urlParams = new URLSearchParams(window.location.search);
     let categoryID = urlParams.get('categoryID');
     let questionID = urlParams.get('questionID');
+    let result = urlParams.get('result');
 
     let pageName = window.location.pathname.split('/').pop();
 
     return {
         categoryID: categoryID,
         questionID: questionID,
+        result: result,
         pageName: pageName
     }
 }
+
+
+let params = getCurrentUrl();
+
 
 function getFirstQuestionIDByCategory(catID) {
     let category = data.find(item => item.id === catID);
@@ -176,6 +211,15 @@ function callAnswerOrCategory(type) {
     })
 
 
+}
+
+
+function callProgressBar(catID) {
+    let category = data.find((item)=> item.id == catID);
+    progressBar = progressBar + 100/(+category?.questions.length);
+    console.log(progressBar);
+
+    return progressBar; 
 }
 
 
@@ -232,12 +276,11 @@ function checkAnswer(questionData, catID) {
 
         if (!rightClassElement) {
 
-            console.log(nextQuestion);
-
             if (selectedID) {
 
                 if (selectedID == questionData.rightAnswerID) {
                     selectedElement.classList.add('right')
+                    quizResult = quizResult+1;
                 } else {
                     selectedElement.classList.add('wrong')
                     rightElement.classList.add('right')
@@ -252,9 +295,13 @@ function checkAnswer(questionData, catID) {
         }
 
         else {
-            updateUrlWithParams("update", { categoryID: catID, questionID: nextQuestion?.id })
-        }
 
+            if (nextQuestion) {
+                updateUrlWithParams("update", { categoryID: catID, questionID: nextQuestion?.id })
+            } else {
+                updateUrlWithParams("update", { categoryID: catID, questionID: questionData.id,result: 'true' })
+            }
+        }
     })
 }
 
@@ -279,9 +326,7 @@ function generateAnswerData(a) {
     })
 
     answerOrCategoryBlock.innerHTML = dataHtml;
-
     callAnswerOrCategory();
-
 }
 
 
@@ -323,14 +368,16 @@ function generateHomePage() {
         </h1>
         <p class="quiz-block_head--desc">Pick a subject to get started.</p>
     </div>`
+
+    let quizBlockBtn = document.querySelector('.quiz-submit_btn');
+
+    quizBlockBtn.innerHTML = ` `
+
 }
-
-
-
-
 
 function generateQuestionPage(catID, questionID) {
     let question = getQuestionByIDs(catID, questionID);
+    callProgressBar(catID)
 
     if (question) {
 
@@ -346,7 +393,7 @@ function generateQuestionPage(catID, questionID) {
             </h3>
             </div>
             <div class="quiz-block_progress">
-                <p style="width: 20%"></p>
+                <p style="width: ${progressBar}%"></p>
             </div>
     `
 
@@ -365,12 +412,64 @@ function generateQuestionPage(catID, questionID) {
     }
 }
 
+function generateResultPage(catID) {
+
+    let questionBlock = document.querySelector('.quiz-block_desc');
+    let category = data.find(item => item.id === catID);
+    let totalCount = category.questions?.length
 
 
-if (params.questionID && params.categoryID) {
+    questionBlock.innerHTML = `
+        <div class="quiz-block_head">
+        <h1 class="quiz-block_head--header">
+            <span>
+                Quiz completed
+            </span><br>
+            You scored...
+        </h1>
+    </div>
+    `
+    let quizBlockBtn = document.querySelector('.quiz-submit_btn');
+    quizBlockBtn.innerHTML = `
+                    <button id='playAgainBtn' class="button button-full button-primary">
+                        Play Again
+                    </button>  `
+
+    callAnswerOrCategory();
+
+    answerOrCategoryBlock.innerHTML = `
+        <li class="quiz-block_li quiz-block_li--result">
+        <div class="quiz-block_li-category">
+          <div>
+            <img src="./assets/img/accessibility.svg" alt="">
+        </div>
+        <p class="quiz-block_li--title">
+            Accessibility
+        </p>  
+        </div>
+        
+        <h1 class="quiz-block_li-result-right">${quizResult}</h1>
+        <p class="quiz-block_li-result-common">out of ${totalCount}</p>
+    </li>
+        `;
+
+
+        let playAgainBtn = document.querySelector("#playAgainBtn");
+
+        playAgainBtn.addEventListener('click',(e)=>{
+            updateUrlWithParams('delete')
+        })
+}
+
+
+
+if (params.questionID && params.categoryID && params.result=='true') {
+    generateResultPage(params.categoryID)
+}
+
+if (params.questionID && params.categoryID && params.result!='true') {
     generateQuestionPage(params.categoryID, params.questionID)
 }
-console.log(params.questionID);
 
 if (!params.questionID || !params.categoryID) {
     generateHomePage();

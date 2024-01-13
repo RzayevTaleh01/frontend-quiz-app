@@ -242,7 +242,7 @@ function checkAnswer(questionData, catID) {
                     selectedElement.classList.add('wrong')
                     rightElement.classList.add('right')
                 }
-                e.target.innerText = nextQuestion? 'Next Question': 'Submit Answer';
+                e.target.innerText = nextQuestion ? 'Next Question' : 'Submit Answer';
             }
             else {
 
@@ -252,7 +252,7 @@ function checkAnswer(questionData, catID) {
         }
 
         else {
-            updateUrlWithParams("update",{categoryID: catID,questionID: nextQuestion?.id})
+            updateUrlWithParams("update", { categoryID: catID, questionID: nextQuestion?.id })
         }
 
     })
@@ -307,6 +307,28 @@ function generateCategoryData(a) {
 }
 
 
+
+function generateHomePage() {
+
+    generateCategoryData(data)
+
+    const questionBlock = document.querySelector('.quiz-block_desc');
+    questionBlock.innerHTML = `
+        <div class="quiz-block_head">
+        <h1 class="quiz-block_head--header">
+            <span>
+                Welcome to the
+            </span><br>
+            Frontend Quiz!
+        </h1>
+        <p class="quiz-block_head--desc">Pick a subject to get started.</p>
+    </div>`
+}
+
+
+
+
+
 function generateQuestionPage(catID, questionID) {
     let question = getQuestionByIDs(catID, questionID);
 
@@ -317,15 +339,15 @@ function generateQuestionPage(catID, questionID) {
         let questionBlock = document.querySelector('.quiz-block_desc');
 
         questionBlock.innerHTML = `
-    <div class="quiz-block_head">
-    <p class="quiz-block_head--desc">Question 6 of 10</p>
-    <h3 class="quiz-block_head--question">
-        ${question.text}
-    </h3>
-</div>
-<div class="quiz-block_progress">
-    <p style="width: 20%"></p>
-</div>
+            <div class="quiz-block_head">
+            <p class="quiz-block_head--desc">Question 6 of 10</p>
+            <h3 class="quiz-block_head--question">
+                ${question.text}
+            </h3>
+            </div>
+            <div class="quiz-block_progress">
+                <p style="width: 20%"></p>
+            </div>
     `
 
         let quizBlockBtn = document.querySelector('.quiz-submit_btn');
@@ -348,8 +370,9 @@ function generateQuestionPage(catID, questionID) {
 if (params.questionID && params.categoryID) {
     generateQuestionPage(params.categoryID, params.questionID)
 }
+console.log(params.questionID);
 
-
-if (!params.questionID && !params.categoryID) {
-    generateCategoryData(data)
+if (!params.questionID || !params.categoryID) {
+    generateHomePage();
 }
+

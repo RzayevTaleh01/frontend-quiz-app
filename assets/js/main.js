@@ -133,6 +133,7 @@ function updateUrlWithParams(type, newParams) {
 
     if (type === 'delete') {
         quizResult=0;
+        progressBar=0;
         url.search = ''
         generateHomePage();
     }

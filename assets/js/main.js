@@ -9,6 +9,9 @@
 
 let quizAnswers;
 let answerOrCategoryBlock = document.querySelector('.quiz-block_categories');
+let quizResult = 0;
+let progressBar = 0;
+
 
 
 let data = [
@@ -75,6 +78,37 @@ let data = [
                 ]
 
             }
+            ,
+            {
+                id: '2121',
+                text: 'WhicLevel AA requirement for normal text?',
+                rightAnswerID: '3',
+                answers: [
+                    {
+                        id: '1',
+                        variant: 'A',
+                        text: '41234 : 1',
+                    },
+                    {
+                        id: '2',
+                        variant: 'B',
+                        text: '1.5 : 1'
+                    },
+                    {
+                        id: '3',
+                        variant: 'C',
+                        text: '2.5 : 2'
+                    },
+                    {
+                        id: '4',
+                        variant: 'D',
+                        text: '3.5 : 1'
+                    }
+
+                ]
+
+            },
+
         ]
     },
     {
@@ -106,11 +140,14 @@ function updateUrlWithParams(type, newParams) {
     let url = new URL(window.location.href);
 
     if (type === 'delete') {
+        quizResult = 0;
+        progressBar=0
         url.search = ''
+        generateHomePage();
     }
     else if (type === 'update') {
         Object.entries(newParams).forEach(([key, value]) => url.searchParams.set(key, value))
-        generateQuestionPage(newParams.categoryID, newParams.questionID)
+        newParams.result ? generateResultPage(newParams.categoryID) : generateQuestionPage(newParams.categoryID, newParams.questionID)
     }
 
 
@@ -124,12 +161,15 @@ function getCurrentUrl() {
     let urlParams = new URLSearchParams(window.location.search);
     let categoryID = urlParams.get('categoryID');
     let questionID = urlParams.get('questionID');
+    let result = urlParams.get('result');
+
 
     let pageName = window.location.pathname.split('/').pop();
 
     return {
         categoryID: categoryID,
         questionID: questionID,
+        result: result,
         pageName: pageName
     }
 }
@@ -162,6 +202,8 @@ function getNextQuestion(catID, currentQuestionID) {
 
 }
 
+// Call Functions
+
 function callAnswerOrCategory(type) {
 
     quizAnswers = document.querySelectorAll('.quiz-block_li');
@@ -177,6 +219,18 @@ function callAnswerOrCategory(type) {
 
 
 }
+
+function callProgressBar(catID) {
+    let category = data.find(item => item.id == catID);
+    let totalQuiz = +category.questions.length;
+
+    progressBar += 100 / totalQuiz
+
+    console.log(progressBar);
+}
+
+
+
 
 
 function getQuestionByIDs(catID, questionID) {
@@ -238,6 +292,7 @@ function checkAnswer(questionData, catID) {
 
                 if (selectedID == questionData.rightAnswerID) {
                     selectedElement.classList.add('right')
+                    quizResult++
                 } else {
                     selectedElement.classList.add('wrong')
                     rightElement.classList.add('right')
@@ -252,7 +307,12 @@ function checkAnswer(questionData, catID) {
         }
 
         else {
-            updateUrlWithParams("update", { categoryID: catID, questionID: nextQuestion?.id })
+            if (nextQuestion) {
+                updateUrlWithParams("update", { categoryID: catID, questionID: nextQuestion?.id })
+            }
+            else {
+                updateUrlWithParams("update", { categoryID: catID, questionID: questionData.id, result: 'true' })
+            }
         }
 
     })
@@ -323,14 +383,23 @@ function generateHomePage() {
         </h1>
         <p class="quiz-block_head--desc">Pick a subject to get started.</p>
     </div>`
+
+    let quizBlockBtn = document.querySelector('.quiz-submit_btn');
+
+    quizBlockBtn.innerHTML = ` `
+
+
+
 }
 
 
 
-
+// Generate Question
 
 function generateQuestionPage(catID, questionID) {
     let question = getQuestionByIDs(catID, questionID);
+
+    callProgressBar(catID);
 
     if (question) {
 
@@ -346,7 +415,7 @@ function generateQuestionPage(catID, questionID) {
             </h3>
             </div>
             <div class="quiz-block_progress">
-                <p style="width: 20%"></p>
+                <p style="width: ${progressBar}%"></p>
             </div>
     `
 
@@ -362,15 +431,85 @@ function generateQuestionPage(catID, questionID) {
     }
     else {
         updateUrlWithParams('delete')
+        generateHomePage()
     }
 }
 
 
+// Generate Result Page
 
-if (params.questionID && params.categoryID) {
+function generateResultPage(catID) {
+
+    let category = data.find(item => item.id === catID)
+
+    console.log(category);
+    let totalQuiz = category?.questions?.length;
+
+
+
+
+
+
+
+    let questionBlock = document.querySelector('.quiz-block_desc');
+    questionBlock.innerHTML = `
+        <div class="quiz-block_head">
+        <h1 class="quiz-block_head--header">
+            <span>
+                Quiz completed
+            </span><br>
+            You scored...
+        </h1>
+    </div>
+    `
+
+    let quizBlockBtn = document.querySelector('.quiz-submit_btn');
+
+    quizBlockBtn.innerHTML = `
+                    <button id='playAgain' class="button button-full button-primary">
+                        Play Again
+                    </button>`
+
+    answerOrCategoryBlock.innerHTML = `
+                    <li class="quiz-block_li quiz-block_li--result">
+                    <div class="quiz-block_li-category">
+                      <div>
+                        <img src="./assets/img/accessibility.svg" alt="">
+                    </div>
+                    <p class="quiz-block_li--title">
+                        Accessibility
+                    </p>  
+                    </div>
+                    
+                    <h1 class="quiz-block_li-result-right">${quizResult}</h1>
+                    <p class="quiz-block_li-result-common">out of ${totalQuiz}</p>
+                </li>
+                    `
+
+    let playAgain = document.querySelector('#playAgain');
+
+    playAgain.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        updateUrlWithParams('delete')
+
+    })
+
+
+
+
+}
+
+
+// Refresh
+
+if (params.questionID && params.categoryID && !params.result) {
     generateQuestionPage(params.categoryID, params.questionID)
 }
-console.log(params.questionID);
+
+if (params.questionID && params.categoryID && params.result) {
+    generateResultPage(params.categoryID);
+}
 
 if (!params.questionID || !params.categoryID) {
     generateHomePage();
